@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Health Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: #fff;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .header .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .patient-info {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            text-align: left;
+        }
+
+        .patient-info h2 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .patient-info p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .health-status {
+            padding: 20px;
+            background: white;
+        }
+
+        .status-card {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(67, 233, 123, 0.3);
+        }
+
+        .status-card.moderate {
+            background: linear-gradient(135deg, #fa9372 0%, #ff6b6b 100%);
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .status-card.high {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            box-shadow: 0 4px 15px rgba(238, 90, 82, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .status-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .risk-score {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .metric-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .metric-card.warning {
+            border-color: #ff9800;
+            background: #fff3e0;
+        }
+
+        .metric-card.danger {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+
+        .metric-chart {
+            height: 60px !important;
+            width: 100% !important;
+            margin: 10px 0;
+            max-height: 60px;
+        }
+
+        .chart-container {
+            height: 60px;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .medication-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .medication-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .medication-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .medication-item.taken {
+            border-left-color: #4caf50;
+            opacity: 0.7;
+        }
+
+        .medication-item.missed {
+            border-left-color: #f44336;
+        }
+
+        .medication-info {
+            flex: 1;
+        }
+
+        .medication-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .medication-dosage {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .medication-time {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .medication-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-badge.taken {
+            background: #e8f5e8;
+            color: #4caf50;
+        }
+
+        .status-badge.pending {
+            background: #fff3e0;
+            color: #ff9800;
+        }
+
+        .status-badge.missed {
+            background: #ffebee;
+            color: #f44336;
+        }
+
+        .take-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .take-btn:hover {
+            background: #5a67d8;
+        }
+
+        .take-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .symptom-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .symptom-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .symptom-btn {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.8rem;
+        }
+
+        .symptom-btn:hover {
+            border-color: #667eea;
+            background: #f7f9ff;
+        }
+
+        .symptom-btn.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .symptom-btn i {
+            display: block;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .vitals-trend {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .trend-chart {
+            height: 200px;
+            margin-top: 15px;
+        }
+
+        .metric-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            color: #667eea;
+        }
+
+        .metric-card.warning .metric-icon {
+            color: #ff9800;
+        }
+
+        .metric-card.danger .metric-icon {
+            color: #f44336;
+        }
+
+        .metric-value {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .section {
+            padding: 0 20px 20px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .updates-list {
+            background: #f8f9fa;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .update-item {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+            background: white;
+            margin-bottom: 2px;
+        }
+
+        .update-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .update-item.urgent {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+        }
+
+        .update-item.critical {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+        }
+
+        .update-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .update-type {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #333;
+        }
+
+        .update-time {
+            font-size: 0.8rem;
+            color: #666;
+            margin-left: auto;
+        }
+
+        .update-message {
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.4;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 15px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .action-btn:active {
+            transform: translateY(0);
+        }
+
+        .trend-indicator {
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+
+        .trend-up {
+            color: #f44336;
+        }
+
+        .trend-down {
+            color: #4caf50;
+        }
+
+        .trend-stable {
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+
+        .back-nav {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+        }
+        
+        .back-nav-btn {
+            background: rgba(0, 0, 0, 0.1);
+            color: rgba(255, 255, 255, 0.6);
+            border: none;
+            border-radius: 4px;
+            width: 30px;
+            height: 30px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.4;
+        }
+        
+        .back-nav-btn:hover {
+            opacity: 0.8;
+            background: rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <!-- Back Navigation Button -->
+    <div class="back-nav">
+        <button class="back-nav-btn" onclick="window.location.href = '/'" title="Back to Healthcare Dashboard">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>My Health Dashboard</h1>
+            <p class="subtitle">Your health, simplified</p>
+            <div class="patient-info" id="patientInfo">
+                <h2>Welcome back!</h2>
+                <p>Loading your health information...</p>
+            </div>
+        </div>
+
+        <div class="health-status">
+            <div class="status-card" id="statusCard">
+                <h3>Health Status</h3>
+                <div class="risk-score" id="riskScore">--</div>
+                <p id="statusMessage">Checking your health...</p>
+            </div>
+
+            <div class="metrics-grid" id="metricsGrid">
+                <div class="metric-card">
+                    <div class="metric-icon"><i class="fas fa-heartbeat"></i></div>
+                    <div class="metric-value" id="heartRate">--</div>
+                    <div class="metric-label">Heart Rate</div>
+                    <div class="chart-container">
+                        <canvas class="metric-chart" id="heartRateChart"></canvas>
+                    </div>
+                    <div class="trend-indicator trend-stable" id="hrTrend">
+                        <i class="fas fa-minus"></i> Stable
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon"><i class="fas fa-walking"></i></div>
+                    <div class="metric-value" id="steps">--</div>
+                    <div class="metric-label">Steps Today</div>
+                    <div class="chart-container">
+                        <canvas class="metric-chart" id="stepsChart"></canvas>
+                    </div>
+                    <div class="trend-indicator trend-stable" id="stepsTrend">
+                        <i class="fas fa-minus"></i> On track
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon"><i class="fas fa-bed"></i></div>
+                    <div class="metric-value" id="sleep">--</div>
+                    <div class="metric-label">Sleep Hours</div>
+                    <div class="chart-container">
+                        <canvas class="metric-chart" id="sleepChart"></canvas>
+                    </div>
+                    <div class="trend-indicator trend-stable" id="sleepTrend">
+                        <i class="fas fa-minus"></i> Good
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon"><i class="fas fa-lungs"></i></div>
+                    <div class="metric-value" id="oxygen">--</div>
+                    <div class="metric-label">Blood Oxygen</div>
+                    <div class="chart-container">
+                        <canvas class="metric-chart" id="oxygenChart"></canvas>
+                    </div>
+                    <div class="trend-indicator trend-stable" id="oxygenTrend">
+                        <i class="fas fa-minus"></i> Normal
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-pills"></i>
+                Medications
+            </h2>
+            <div class="medication-section">
+                <div class="medication-grid" id="medicationList">
+                    <!-- Medications will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-thermometer-half"></i>
+                How are you feeling?
+            </h2>
+            <div class="symptom-section">
+                <div class="symptom-grid" id="symptomGrid">
+                    <div class="symptom-btn" data-symptom="pain">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Pain
+                    </div>
+                    <div class="symptom-btn" data-symptom="fatigue">
+                        <i class="fas fa-tired"></i>
+                        Fatigue
+                    </div>
+                    <div class="symptom-btn" data-symptom="nausea">
+                        <i class="fas fa-dizzy"></i>
+                        Nausea
+                    </div>
+                    <div class="symptom-btn" data-symptom="shortness">
+                        <i class="fas fa-lungs"></i>
+                        Short of Breath
+                    </div>
+                    <div class="symptom-btn" data-symptom="headache">
+                        <i class="fas fa-head-side-brain"></i>
+                        Headache
+                    </div>
+                    <div class="symptom-btn" data-symptom="good">
+                        <i class="fas fa-smile"></i>
+                        Feeling Good
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-bell"></i>
+                Health Updates
+            </h2>
+            <div class="updates-list" id="updatesList">
+                <div class="empty-state">
+                    <i class="fas fa-comments"></i>
+                    <p>No new updates</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="quick-actions">
+                <button class="action-btn" onclick="refreshData()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+                <button class="action-btn" onclick="contactNurse()">
+                    <i class="fas fa-phone"></i> Contact Nurse
+                </button>
+                <button class="action-btn" onclick="startVideoCall()">
+                    <i class="fas fa-video"></i> Video Call
+                </button>
+                <button class="action-btn" onclick="viewReports()">
+                    <i class="fas fa-file-medical"></i> Reports
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let patientData = null;
+        let patientId = getPatientIdFromUrl() || '1';
+        let charts = {};
+        let medications = [
+            { name: 'Lisinopril', dosage: '10mg', time: '8:00 AM', status: 'pending', id: 1 },
+            { name: 'Metformin', dosage: '500mg', time: '12:00 PM', status: 'taken', id: 2 },
+            { name: 'Atorvastatin', dosage: '20mg', time: '8:00 PM', status: 'pending', id: 3 }
+        ];
+        let selectedSymptoms = [];
+
+        function getPatientIdFromUrl() {
+            const path = window.location.pathname;
+            const match = path.match(/\/patient\/(.+)/);
+            return match ? match[1] : null;
+        }
+
+        async function loadPatientData() {
+            try {
+                let response, data;
+                
+                if (patientId && patientId !== '1') {
+                    // Load specific patient data
+                    response = await fetch(`/api/patient/${patientId}`);
+                    if (response.ok) {
+                        data = await response.json();
+                        if (data.error) {
+                            throw new Error(data.error);
+                        }
+                        
+                        // Convert single patient data to array format for compatibility
+                        const patientRows = [data];
+                        const latest = patientRows[0];
+                        const previous = latest; // For single record, use same as previous
+                        
+                        patientData = { latest, previous, history: patientRows };
+                        updateUI();
+                        return;
+                    }
+                }
+                
+                // Fallback to all patient data if specific patient not found
+                response = await fetch('/api/patient-data');
+                data = await response.json();
+                
+                // Get patient's data (latest reading)
+                const patientRows = data.filter(row => row.id === patientId);
+                if (patientRows.length === 0) {
+                    // If no specific patient found, use first patient
+                    const firstPatient = data[0];
+                    if (firstPatient) {
+                        patientId = firstPatient.id;
+                        const firstPatientRows = data.filter(row => row.id === patientId);
+                        firstPatientRows.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                        const latest = firstPatientRows[0];
+                        const previous = firstPatientRows[1] || latest;
+                        patientData = { latest, previous, history: firstPatientRows };
+                    }
+                } else {
+                    patientRows.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    const latest = patientRows[0];
+                    const previous = patientRows[1] || latest;
+                    patientData = { latest, previous, history: patientRows };
+                }
+                
+                updateUI();
+            } catch (error) {
+                console.error('Failed to load data:', error);
+                document.getElementById('patientInfo').innerHTML = `
+                    <h2>Error Loading Patient Data</h2>
+                    <p>Unable to load data for patient ID: ${patientId}</p>
+                `;
+            }
+        }
+
+        function updateUI() {
+            if (!patientData) return;
+            
+            const { latest, previous } = patientData;
+            
+            // Update patient info
+            document.getElementById('patientInfo').innerHTML = `
+                <h2>Hello, ${latest.name}</h2>
+                <p>Age ${latest.age} • ${latest.diagnosis}</p>
+            `;
+            
+            // Update health status
+            updateHealthStatus(latest);
+            
+            // Update metrics
+            updateMetrics(latest, previous);
+            
+            // Update health messages
+            updateHealthUpdates(latest);
+            
+            // Update medications
+            updateMedications();
+            
+            // Update symptom tracking
+            updateSymptomTracking();
+            
+            // Create mini charts
+            createMiniCharts();
+        }
+
+        function updateHealthStatus(data) {
+            const statusCard = document.getElementById('statusCard');
+            const riskScore = document.getElementById('riskScore');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            riskScore.textContent = `${data.risk_score}/15`;
+            
+            // Update card styling based on risk
+            statusCard.className = 'status-card';
+            if (data.risk_category === 'High') {
+                statusCard.classList.add('high');
+                statusMessage.textContent = 'Please contact your healthcare provider';
+            } else if (data.risk_category === 'Moderate') {
+                statusCard.classList.add('moderate');
+                statusMessage.textContent = 'Monitor your health closely';
+            } else {
+                statusMessage.textContent = 'You\'re doing great!';
+            }
+        }
+
+        function updateMetrics(latest, previous) {
+            // Heart Rate
+            updateMetric('heartRate', `${latest.heart_rate} bpm`, 'hrTrend', 
+                latest.heart_rate, previous.heart_rate, 60, 100);
+            
+            // Steps
+            updateMetric('steps', latest.steps, 'stepsTrend', 
+                latest.steps, previous.steps, 7000, null, 'steps');
+            
+            // Sleep
+            const sleepHours = latest.sleep_hours > 0 ? `${latest.sleep_hours}h` : 'Awake';
+            updateMetric('sleep', sleepHours, 'sleepTrend', 
+                latest.sleep_hours, previous.sleep_hours, 7, null, 'sleep');
+            
+            // Oxygen
+            updateMetric('oxygen', `${latest.blood_oxygen}%`, 'oxygenTrend', 
+                latest.blood_oxygen, previous.blood_oxygen, 95, null);
+        }
+
+        function updateMetric(valueId, displayValue, trendId, current, previous, warningThreshold, dangerThreshold, type = '') {
+            document.getElementById(valueId).textContent = displayValue;
+            
+            const metricCard = document.getElementById(valueId).closest('.metric-card');
+            const trendElement = document.getElementById(trendId);
+            
+            // Clear existing classes
+            metricCard.classList.remove('warning', 'danger');
+            
+            // Add warning/danger classes
+            if (dangerThreshold && (current >= dangerThreshold || current <= (dangerThreshold - 40))) {
+                metricCard.classList.add('danger');
+            } else if (warningThreshold) {
+                if (type === 'steps' && current < warningThreshold) {
+                    metricCard.classList.add('warning');
+                } else if (type === 'sleep' && current < warningThreshold && current > 0) {
+                    metricCard.classList.add('warning');
+                } else if (type === '' && (current < warningThreshold || current >= 100)) {
+                    metricCard.classList.add('warning');
+                }
+            }
+            
+            // Update trend
+            const diff = current - previous;
+            if (Math.abs(diff) < 0.1) {
+                trendElement.innerHTML = '<i class="fas fa-minus"></i> Stable';
+                trendElement.className = 'trend-indicator trend-stable';
+            } else if (diff > 0) {
+                trendElement.innerHTML = `<i class="fas fa-arrow-up"></i> +${diff.toFixed(1)}`;
+                trendElement.className = 'trend-indicator trend-up';
+            } else {
+                trendElement.innerHTML = `<i class="fas fa-arrow-down"></i> ${diff.toFixed(1)}`;
+                trendElement.className = 'trend-indicator trend-down';
+            }
+        }
+
+        function updateHealthUpdates(data) {
+            const updatesList = document.getElementById('updatesList');
+            const updates = generateHealthUpdates(data);
+            
+            if (updates.length === 0) {
+                updatesList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-comments"></i>
+                        <p>No new updates</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            updatesList.innerHTML = updates.map(update => `
+                <div class="update-item ${update.type}">
+                    <div class="update-header">
+                        <span class="update-type">${update.title}</span>
+                        <span class="update-time">${update.time}</span>
+                    </div>
+                    <div class="update-message">${update.message}</div>
+                </div>
+            `).join('');
+        }
+
+        function generateHealthUpdates(data) {
+            const updates = [];
+            const now = new Date();
+            
+            // Generate automatic updates based on health data
+            if (data.risk_category === 'High') {
+                updates.push({
+                    type: 'critical',
+                    title: 'Health Alert',
+                    message: 'Your risk score is elevated. Please contact your healthcare provider immediately.',
+                    time: '5 min ago'
+                });
+            }
+            
+            if (data.heart_rate > 100) {
+                updates.push({
+                    type: 'urgent',
+                    title: 'Heart Rate Alert',
+                    message: 'Your heart rate is elevated. Consider resting and staying hydrated.',
+                    time: '10 min ago'
+                });
+            }
+            
+            if (data.blood_oxygen < 95) {
+                updates.push({
+                    type: 'urgent',
+                    title: 'Oxygen Level',
+                    message: 'Your blood oxygen is below normal. Monitor closely and contact your nurse if it persists.',
+                    time: '15 min ago'
+                });
+            }
+            
+            // Add some sample nurse messages
+            updates.push({
+                type: '',
+                title: 'Nurse Message',
+                message: 'Great job on your daily steps! Keep up the good work with your exercise routine.',
+                time: '2 hours ago'
+            });
+            
+            if (data.sleep_hours < 7 && data.sleep_hours > 0) {
+                updates.push({
+                    type: '',
+                    title: 'Sleep Reminder',
+                    message: 'Try to get 7-8 hours of sleep tonight for better recovery.',
+                    time: '1 day ago'
+                });
+            }
+            
+            return updates;
+        }
+
+        function refreshData() {
+            const btn = event.target.closest('.action-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                loadPatientData();
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 1000);
+        }
+
+        function contactNurse() {
+            alert('Connecting you to your nurse...\n\nIn a real app, this would open a chat or call interface.');
+        }
+
+        function updateMedications() {
+            const medicationList = document.getElementById('medicationList');
+            medicationList.innerHTML = medications.map(med => `
+                <div class="medication-item ${med.status}">
+                    <div class="medication-info">
+                        <div class="medication-name">${med.name}</div>
+                        <div class="medication-dosage">${med.dosage}</div>
+                        <div class="medication-time">${med.time}</div>
+                    </div>
+                    <div class="medication-status">
+                        <span class="status-badge ${med.status}">
+                            ${med.status.charAt(0).toUpperCase() + med.status.slice(1)}
+                        </span>
+                        ${med.status === 'pending' ? 
+                            `<button class="take-btn" onclick="takeMedication(${med.id})">Take</button>` : 
+                            ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function takeMedication(medId) {
+            const med = medications.find(m => m.id === medId);
+            if (med) {
+                med.status = 'taken';
+                updateMedications();
+                
+                // Show confirmation
+                const updates = document.getElementById('updatesList');
+                const newUpdate = document.createElement('div');
+                newUpdate.className = 'update-item';
+                newUpdate.innerHTML = `
+                    <div class="update-header">
+                        <span class="update-type">Medication Taken</span>
+                        <span class="update-time">Just now</span>
+                    </div>
+                    <div class="update-message">You've taken ${med.name} ${med.dosage}</div>
+                `;
+                updates.insertBefore(newUpdate, updates.firstChild);
+            }
+        }
+
+        function updateSymptomTracking() {
+            const symptomButtons = document.querySelectorAll('.symptom-btn');
+            symptomButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const symptom = btn.dataset.symptom;
+                    btn.classList.toggle('active');
+                    
+                    if (selectedSymptoms.includes(symptom)) {
+                        selectedSymptoms = selectedSymptoms.filter(s => s !== symptom);
+                    } else {
+                        selectedSymptoms.push(symptom);
+                    }
+                    
+                    // Log symptom
+                    if (selectedSymptoms.length > 0) {
+                        console.log('Symptoms logged:', selectedSymptoms);
+                    }
+                });
+            });
+        }
+
+        function createMiniCharts() {
+            // Generate some sample historical data
+            const history = generateSampleHistory();
+            
+            // Heart Rate Chart
+            createChart('heartRateChart', history.heartRate, '#ff6384');
+            
+            // Steps Chart
+            createChart('stepsChart', history.steps, '#4bc0c0');
+            
+            // Sleep Chart
+            createChart('sleepChart', history.sleep, '#ffce56');
+            
+            // Oxygen Chart
+            createChart('oxygenChart', history.oxygen, '#36a2eb');
+        }
+
+        function generateSampleHistory() {
+            const days = 7;
+            const history = {
+                heartRate: [],
+                steps: [],
+                sleep: [],
+                oxygen: []
+            };
+            
+            for (let i = days; i >= 0; i--) {
+                history.heartRate.push(65 + Math.random() * 20);
+                history.steps.push(7000 + Math.random() * 5000);
+                history.sleep.push(6 + Math.random() * 3);
+                history.oxygen.push(96 + Math.random() * 3);
+            }
+            
+            return history;
+        }
+
+        function createChart(canvasId, data, color) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            
+            // Set canvas dimensions explicitly
+            canvas.style.height = '60px';
+            canvas.style.width = '100%';
+            canvas.height = 60;
+            canvas.width = canvas.offsetWidth;
+            
+            const ctx = canvas.getContext('2d');
+            
+            if (charts[canvasId]) {
+                charts[canvasId].destroy();
+            }
+            
+            charts[canvasId] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['7d', '6d', '5d', '4d', '3d', '2d', '1d', 'Now'],
+                    datasets: [{
+                        data: data,
+                        borderColor: color,
+                        backgroundColor: color + '20',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 3,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { display: false },
+                        y: { display: false }
+                    },
+                    elements: {
+                        line: { borderWidth: 2 }
+                    },
+                    layout: {
+                        padding: 0
+                    }
+                }
+            });
+        }
+
+        function startVideoCall() {
+            alert('Starting video call with your healthcare provider...\n\nIn a real app, this would launch a video call interface.');
+        }
+
+        function viewReports() {
+            alert('Opening your health reports...\n\nIn a real app, this would show detailed medical reports and test results.');
+        }
+
+        // Load data when page loads
+        loadPatientData();
+        
+        // Refresh data every 30 seconds
+        setInterval(loadPatientData, 30000);
+    </script>
+</body>
+</html>

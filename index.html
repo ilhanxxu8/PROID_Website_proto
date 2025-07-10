@@ -207,6 +207,35 @@
         .legend-dot.ecg { background: #ff6384; }
         .legend-dot.tachy { background: orange; }
         .legend-dot.brady { background: green; }
+        
+        .patient-nav {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+        
+        .patient-nav-btn {
+            background: rgba(42, 82, 152, 0.1);
+            color: rgba(42, 82, 152, 0.6);
+            border: none;
+            border-radius: 4px;
+            width: 30px;
+            height: 30px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.4;
+        }
+        
+        .patient-nav-btn:hover {
+            opacity: 0.8;
+            background: rgba(42, 82, 152, 0.2);
+        }
+        
         @media (max-width: 1100px) {
             .charts { flex-direction: column; gap: 0; }
             .chart-container { min-width: 0; }
@@ -226,6 +255,13 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 </head>
 <body>
+    <!-- Patient Navigation Button -->
+    <div class="patient-nav">
+        <button class="patient-nav-btn" onclick="navigateToPatient()" title="View Patient Dashboard">
+            <i class="fas fa-user"></i>
+        </button>
+    </div>
+    
     <div style="display:flex;justify-content:center;align-items:center;margin-top:24px;margin-bottom:-18px;">
         <img src="https://img.icons8.com/color/96/heart-with-pulse--v1.png" alt="Health Dashboard Logo" style="height:64px;width:64px;margin-right:16px;">
         <h1 style="margin:0;">Patient Health Dashboard</h1>
@@ -287,6 +323,17 @@
     <script>
         let allData = [];
         let charts = {};
+        
+        function navigateToPatient() {
+            const patientSelect = document.getElementById('patientSelect');
+            const selectedPatientId = patientSelect.value;
+            if (selectedPatientId) {
+                window.location.href = `/patient/${selectedPatientId}`;
+            } else {
+                window.location.href = '/patient.html';
+            }
+        }
+        
         fetch('/api/patient-data')
             .then(response => response.json())
             .then(data => {

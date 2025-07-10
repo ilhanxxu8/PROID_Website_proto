@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Reports - Patient Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: #fff;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: background 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .content {
+            padding: 30px 20px;
+        }
+
+        .report-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .report-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .report-date {
+            font-size: 0.9rem;
+            color: #666;
+            margin-left: auto;
+        }
+
+        .report-summary {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .download-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .download-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1>Health Reports</h1>
+            <p>Comprehensive health analytics</p>
+        </div>
+
+        <div class="content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalReports">12</div>
+                    <div class="stat-label">Total Reports</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avgScore">85%</div>
+                    <div class="stat-label">Health Score</div>
+                </div>
+            </div>
+
+            <div class="report-card">
+                <div class="report-header">
+                    <div class="report-title">Monthly Health Summary</div>
+                    <div class="report-date">Dec 2024</div>
+                </div>
+                <div class="report-summary">
+                    Comprehensive analysis of your health metrics, including vitals, medication adherence, and lifestyle factors.
+                </div>
+                <button class="download-btn" onclick="downloadReport('monthly')">
+                    <i class="fas fa-download"></i> Download PDF
+                </button>
+            </div>
+
+            <div class="report-card">
+                <div class="report-header">
+                    <div class="report-title">Cardiac Health Report</div>
+                    <div class="report-date">Nov 2024</div>
+                </div>
+                <div class="report-summary">
+                    Detailed heart rate variability analysis and cardiovascular health assessment based on continuous monitoring.
+                </div>
+                <button class="download-btn" onclick="downloadReport('cardiac')">
+                    <i class="fas fa-download"></i> Download PDF
+                </button>
+            </div>
+
+            <div class="report-card">
+                <div class="report-header">
+                    <div class="report-title">Medication Adherence</div>
+                    <div class="report-date">Nov 2024</div>
+                </div>
+                <div class="report-summary">
+                    Track your medication compliance and effectiveness over the past month with detailed analytics.
+                </div>
+                <button class="download-btn" onclick="downloadReport('medication')">
+                    <i class="fas fa-download"></i> Download PDF
+                </button>
+            </div>
+
+            <div class="report-card">
+                <div class="report-header">
+                    <div class="report-title">Lab Results Summary</div>
+                    <div class="report-date">Oct 2024</div>
+                </div>
+                <div class="report-summary">
+                    Complete blood panel, cholesterol levels, and other important lab work with trend analysis.
+                </div>
+                <button class="download-btn" onclick="downloadReport('lab')">
+                    <i class="fas fa-download"></i> Download PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let patientId = getPatientIdFromUrl() || '1';
+
+        function getPatientIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('patient');
+        }
+
+        function goBack() {
+            if (patientId && patientId !== '1') {
+                window.location.href = `/patient-dashboard.html?patient=${patientId}`;
+            } else {
+                window.location.href = '/patient-dashboard.html';
+            }
+        }
+
+        function downloadReport(type) {
+            // In a real app, this would trigger a PDF download
+            alert(`Downloading ${type} report for patient ${patientId}...\n\nIn a real application, this would generate and download a PDF report.`);
+        }
+
+        // Load patient-specific report data
+        document.addEventListener('DOMContentLoaded', () => {
+            if (patientId) {
+                console.log(`Loading reports for patient ${patientId}`);
+                // Here you would load patient-specific report data
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointments - Patient Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: #fff;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: background 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .content {
+            padding: 30px 20px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .appointment-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+
+        .appointment-card.upcoming {
+            border-left-color: #4caf50;
+        }
+
+        .appointment-card.completed {
+            border-left-color: #9e9e9e;
+            opacity: 0.8;
+        }
+
+        .appointment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .appointment-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .appointment-status {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .appointment-status.upcoming {
+            background: #4caf50;
+        }
+
+        .appointment-status.completed {
+            background: #9e9e9e;
+        }
+
+        .appointment-details {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .appointment-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.3s;
+            flex: 1;
+        }
+
+        .action-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .action-btn.secondary {
+            background: #f8f9fa;
+            color: #667eea;
+            border: 1px solid #dee2e6;
+        }
+
+        .action-btn.secondary:hover {
+            background: #e9ecef;
+        }
+
+        .schedule-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 15px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            margin-top: 20px;
+        }
+
+        .schedule-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .quick-action {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .quick-action:hover {
+            border-color: #667eea;
+            background: #fff;
+        }
+
+        .quick-action-icon {
+            font-size: 1.5rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .quick-action-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1>Appointments</h1>
+            <p>Manage your healthcare appointments</p>
+        </div>
+
+        <div class="content">
+            <div class="quick-actions">
+                <div class="quick-action" onclick="scheduleAppointment()">
+                    <div class="quick-action-icon"><i class="fas fa-plus"></i></div>
+                    <div class="quick-action-title">Schedule New</div>
+                </div>
+                <div class="quick-action" onclick="viewCalendar()">
+                    <div class="quick-action-icon"><i class="fas fa-calendar"></i></div>
+                    <div class="quick-action-title">View Calendar</div>
+                </div>
+            </div>
+
+            <div class="section-title">Upcoming Appointments</div>
+            
+            <div class="appointment-card upcoming">
+                <div class="appointment-header">
+                    <div class="appointment-title">Dr. Sarah Johnson - Cardiology</div>
+                    <div class="appointment-status upcoming">Upcoming</div>
+                </div>
+                <div class="appointment-details">
+                    <i class="fas fa-calendar"></i> December 28, 2024<br>
+                    <i class="fas fa-clock"></i> 2:30 PM - 3:00 PM<br>
+                    <i class="fas fa-map-marker-alt"></i> Main Medical Center, Room 205
+                </div>
+                <div class="appointment-actions">
+                    <button class="action-btn" onclick="joinVirtual('apt1')">Join Virtual</button>
+                    <button class="action-btn secondary" onclick="reschedule('apt1')">Reschedule</button>
+                </div>
+            </div>
+
+            <div class="appointment-card upcoming">
+                <div class="appointment-header">
+                    <div class="appointment-title">Dr. Michael Chen - General Medicine</div>
+                    <div class="appointment-status upcoming">Upcoming</div>
+                </div>
+                <div class="appointment-details">
+                    <i class="fas fa-calendar"></i> January 5, 2025<br>
+                    <i class="fas fa-clock"></i> 10:00 AM - 10:30 AM<br>
+                    <i class="fas fa-video"></i> Virtual Appointment
+                </div>
+                <div class="appointment-actions">
+                    <button class="action-btn" onclick="joinVirtual('apt2')">Join Virtual</button>
+                    <button class="action-btn secondary" onclick="reschedule('apt2')">Reschedule</button>
+                </div>
+            </div>
+
+            <div class="section-title">Recent Appointments</div>
+
+            <div class="appointment-card completed">
+                <div class="appointment-header">
+                    <div class="appointment-title">Dr. Sarah Johnson - Cardiology</div>
+                    <div class="appointment-status completed">Completed</div>
+                </div>
+                <div class="appointment-details">
+                    <i class="fas fa-calendar"></i> December 15, 2024<br>
+                    <i class="fas fa-clock"></i> 2:30 PM - 3:00 PM<br>
+                    <i class="fas fa-check-circle"></i> Follow-up scheduled
+                </div>
+                <div class="appointment-actions">
+                    <button class="action-btn secondary" onclick="viewNotes('apt3')">View Notes</button>
+                    <button class="action-btn secondary" onclick="downloadSummary('apt3')">Summary</button>
+                </div>
+            </div>
+
+            <button class="schedule-btn" onclick="scheduleAppointment()">
+                <i class="fas fa-plus"></i> Schedule New Appointment
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let patientId = getPatientIdFromUrl() || '1';
+
+        function getPatientIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('patient');
+        }
+
+        function goBack() {
+            if (patientId && patientId !== '1') {
+                window.location.href = `/patient-dashboard.html?patient=${patientId}`;
+            } else {
+                window.location.href = '/patient-dashboard.html';
+            }
+        }
+
+        function scheduleAppointment() {
+            alert('Schedule New Appointment\n\nIn a real app, this would open a scheduling interface with available time slots and providers.');
+        }
+
+        function viewCalendar() {
+            alert('Calendar View\n\nIn a real app, this would display a full calendar view of all appointments.');
+        }
+
+        function joinVirtual(appointmentId) {
+            alert(`Joining virtual appointment ${appointmentId}...\n\nIn a real app, this would connect you to a video call with your healthcare provider.`);
+        }
+
+        function reschedule(appointmentId) {
+            if (confirm(`Reschedule appointment ${appointmentId}?\n\nThis will cancel your current appointment and allow you to select a new time.`)) {
+                alert('Reschedule initiated. You will receive an email with available time slots.');
+            }
+        }
+
+        function viewNotes(appointmentId) {
+            alert(`Viewing notes for appointment ${appointmentId}...\n\nIn a real app, this would display the clinical notes and summary from your visit.`);
+        }
+
+        function downloadSummary(appointmentId) {
+            alert(`Downloading summary for appointment ${appointmentId}...\n\nIn a real app, this would download a PDF summary of your visit.`);
+        }
+
+        // Load patient-specific appointment data
+        document.addEventListener('DOMContentLoaded', () => {
+            if (patientId) {
+                console.log(`Loading appointments for patient ${patientId}`);
+                // Here you would load patient-specific appointment data
+            }
+        });
+    </script>
+</body>
+</html>

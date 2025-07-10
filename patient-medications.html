@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medications</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: #fff;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .back-nav {
+            position: absolute;
+            top: 50%;
+            left: 15px;
+            transform: translateY(-50%);
+        }
+        
+        .back-nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 30px;
+            height: 30px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .back-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .adherence-summary {
+            margin: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .adherence-percentage {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #4caf50;
+            margin-bottom: 5px;
+        }
+
+        .adherence-percentage.warning {
+            color: #ff9800;
+        }
+
+        .adherence-percentage.danger {
+            color: #f44336;
+        }
+
+        .adherence-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .adherence-message {
+            font-size: 0.9rem;
+            color: #333;
+        }
+
+        .section {
+            margin: 20px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .medication-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .medication-item {
+            background: white;
+            border-radius: 12px;
+            padding: 18px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .medication-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        .medication-item.taken {
+            border-left-color: #4caf50;
+            opacity: 0.7;
+        }
+
+        .medication-item.missed {
+            border-left-color: #f44336;
+        }
+
+        .medication-item.overdue {
+            border-left-color: #ff9800;
+            background: #fff3e0;
+        }
+
+        .medication-info {
+            flex: 1;
+        }
+
+        .medication-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+
+        .medication-dosage {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 3px;
+        }
+
+        .medication-time {
+            font-size: 0.8rem;
+            color: #888;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .medication-status {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-badge.taken {
+            background: #e8f5e8;
+            color: #4caf50;
+        }
+
+        .status-badge.pending {
+            background: #e3f2fd;
+            color: #2196f3;
+        }
+
+        .status-badge.overdue {
+            background: #fff3e0;
+            color: #ff9800;
+        }
+
+        .status-badge.missed {
+            background: #ffebee;
+            color: #f44336;
+        }
+
+        .take-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .take-btn:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+
+        .take-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .reminder-settings {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .reminder-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 25px;
+            background: #ccc;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: #667eea;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 21px;
+            height: 21px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            left: 27px;
+        }
+
+        .add-medication-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 15px 30px;
+            font-size: 1rem;
+            font-weight: 500;
+            margin: 20px;
+            width: calc(100% - 40px);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .add-medication-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50, #81c784);
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="back-nav">
+                <button class="back-nav-btn" onclick="goBack()" title="Back to Dashboard">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+            </div>
+            <h1><i class="fas fa-pills"></i> Medications</h1>
+            <p class="subtitle">Track and manage your medications</p>
+        </div>
+
+        <div class="adherence-summary">
+            <div class="adherence-percentage" id="adherencePercentage">85%</div>
+            <div class="adherence-label">Adherence This Week</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 85%"></div>
+            </div>
+            <div class="adherence-message" id="adherenceMessage">Good job! Keep it up.</div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-clock"></i>
+                Due Now & Overdue
+            </div>
+            <div class="medication-grid" id="todaysMedications">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-list"></i>
+                Complete Medication List
+            </div>
+            <div class="medication-grid" id="allMedications">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="reminder-settings">
+                <div class="section-title">
+                    <i class="fas fa-bell"></i>
+                    Reminder Settings
+                </div>
+                <div class="reminder-toggle">
+                    <span>Push Notifications</span>
+                    <div class="toggle-switch active" onclick="toggleReminders(this)"></div>
+                </div>
+                <div class="reminder-toggle">
+                    <span>Sound Alerts</span>
+                    <div class="toggle-switch active" onclick="toggleReminders(this)"></div>
+                </div>
+                <div class="reminder-toggle">
+                    <span>Email Reminders</span>
+                    <div class="toggle-switch" onclick="toggleReminders(this)"></div>
+                </div>
+            </div>
+        </div>
+
+        <button class="add-medication-btn" onclick="addMedication()">
+            <i class="fas fa-plus"></i> Add New Medication
+        </button>
+    </div>
+
+    <script>
+        let patientId = getPatientIdFromUrl() || '1';
+        let medications = [
+            { 
+                id: 1, 
+                name: 'Lisinopril', 
+                dosage: '10mg', 
+                times: ['8:00 AM'], 
+                status: 'taken',
+                frequency: 'Daily',
+                purpose: 'Blood pressure',
+                nextDue: '8:00 AM Tomorrow'
+            },
+            { 
+                id: 2, 
+                name: 'Metformin', 
+                dosage: '500mg', 
+                times: ['8:00 AM', '6:00 PM'], 
+                status: 'pending',
+                frequency: 'Twice daily',
+                purpose: 'Diabetes',
+                nextDue: '6:00 PM Today'
+            },
+            { 
+                id: 3, 
+                name: 'Atorvastatin', 
+                dosage: '20mg', 
+                times: ['8:00 PM'], 
+                status: 'pending',
+                frequency: 'Daily',
+                purpose: 'Cholesterol',
+                nextDue: '8:00 PM Today'
+            },
+            { 
+                id: 4, 
+                name: 'Aspirin', 
+                dosage: '81mg', 
+                times: ['8:00 AM'], 
+                status: 'overdue',
+                frequency: 'Daily',
+                purpose: 'Heart health',
+                nextDue: '2 hours overdue'
+            }
+        ];
+
+        function getPatientIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('patient') || '1';
+        }
+
+        function goBack() {
+            if (patientId && patientId !== '1') {
+                window.location.href = `/patient/${patientId}`;
+            } else {
+                window.location.href = 'patient-dashboard.html';
+            }
+        }
+
+        function updateMedicationDisplay() {
+            updateTodaysMedications();
+            updateAllMedications();
+            updateAdherenceStats();
+        }
+
+        function updateTodaysMedications() {
+            const container = document.getElementById('todaysMedications');
+            const now = new Date();
+            const currentHour = now.getHours();
+            
+            // Filter medications that are due today and need attention
+            const todaysMeds = medications.filter(med => {
+                return med.status === 'pending' || med.status === 'overdue';
+            });
+
+            if (todaysMeds.length === 0) {
+                container.innerHTML = `
+                    <div class="medication-item" style="text-align: center; opacity: 0.7;">
+                        <div class="medication-info">
+                            <div class="medication-name">All caught up!</div>
+                            <div class="medication-dosage">No pending medications for today</div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = todaysMeds.map(med => `
+                <div class="medication-item ${med.status}">
+                    <div class="medication-info">
+                        <div class="medication-name">${med.name}</div>
+                        <div class="medication-dosage">${med.dosage} • ${med.purpose}</div>
+                        <div class="medication-time">
+                            <i class="fas fa-clock"></i>
+                            ${med.nextDue}
+                        </div>
+                    </div>
+                    <div class="medication-status">
+                        <span class="status-badge ${med.status}">
+                            ${med.status.charAt(0).toUpperCase() + med.status.slice(1)}
+                        </span>
+                        <button class="take-btn" onclick="takeMedication(${med.id})">
+                            <i class="fas fa-check"></i> Take
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateAllMedications() {
+            const container = document.getElementById('allMedications');
+            
+            container.innerHTML = medications.map(med => `
+                <div class="medication-item">
+                    <div class="medication-info">
+                        <div class="medication-name">${med.name}</div>
+                        <div class="medication-dosage">${med.dosage} • ${med.frequency}</div>
+                        <div class="medication-time">
+                            <i class="fas fa-info-circle"></i>
+                            ${med.purpose} • Times: ${med.times.join(', ')}
+                        </div>
+                    </div>
+                    <div class="medication-status">
+                        <span class="status-badge ${med.status}" style="margin-bottom: 8px;">
+                            ${med.status.charAt(0).toUpperCase() + med.status.slice(1)}
+                        </span>
+                        <button class="take-btn" onclick="editMedication(${med.id})" style="background: #6c757d;">
+                            <i class="fas fa-edit"></i> Manage
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateAdherenceStats() {
+            const totalMeds = medications.length * 7; // Weekly total
+            const takenMeds = medications.filter(med => med.status === 'taken').length * 7;
+            const adherenceRate = Math.round((takenMeds / totalMeds) * 100);
+            
+            const percentageEl = document.getElementById('adherencePercentage');
+            const progressEl = document.getElementById('progressFill');
+            const messageEl = document.getElementById('adherenceMessage');
+            
+            percentageEl.textContent = adherenceRate + '%';
+            percentageEl.className = 'adherence-percentage';
+            
+            if (adherenceRate >= 90) {
+                percentageEl.classList.add('success');
+                messageEl.textContent = 'Excellent adherence! Keep it up.';
+            } else if (adherenceRate >= 75) {
+                percentageEl.classList.add('warning');
+                messageEl.textContent = 'Good job! Try to improve consistency.';
+            } else {
+                percentageEl.classList.add('danger');
+                messageEl.textContent = 'Consider setting more reminders.';
+            }
+            
+            progressEl.style.width = adherenceRate + '%';
+        }
+
+        function takeMedication(medId) {
+            const med = medications.find(m => m.id === medId);
+            if (med) {
+                med.status = 'taken';
+                updateMedicationDisplay();
+                
+                // Show success message
+                showNotification(`✅ ${med.name} taken successfully!`);
+                
+                // Vibrate if supported
+                if (navigator.vibrate) {
+                    navigator.vibrate([100, 50, 100]);
+                }
+            }
+        }
+
+        function editMedication(medId) {
+            const med = medications.find(m => m.id === medId);
+            if (med) {
+                alert(`Edit ${med.name}\n\nIn a real app, this would open an edit form for:\n- Dosage: ${med.dosage}\n- Frequency: ${med.frequency}\n- Times: ${med.times.join(', ')}`);
+            }
+        }
+
+        function addMedication() {
+            alert('Add New Medication\n\nIn a real app, this would open a form to:\n- Enter medication name\n- Set dosage\n- Choose frequency\n- Set reminder times\n- Add notes');
+        }
+
+        function toggleReminders(toggle) {
+            toggle.classList.toggle('active');
+            const setting = toggle.parentElement.querySelector('span').textContent;
+            const isActive = toggle.classList.contains('active');
+            
+            showNotification(`${setting} ${isActive ? 'enabled' : 'disabled'}`);
+        }
+
+        function showNotification(message) {
+            // Create a simple toast notification
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #4caf50;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                font-size: 0.9rem;
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            `;
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 2000);
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize the page
+        updateMedicationDisplay();
+
+        // Simulate real-time updates
+        setInterval(() => {
+            // Update status for overdue medications
+            const now = new Date();
+            medications.forEach(med => {
+                if (med.status === 'pending' && Math.random() > 0.95) {
+                    med.status = 'overdue';
+                }
+            });
+            updateMedicationDisplay();
+        }, 30000); // Check every 30 seconds
+    </script>
+</body>
+</html>

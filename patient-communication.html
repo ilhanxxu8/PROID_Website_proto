@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Communication</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: #fff;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .back-nav {
+            position: absolute;
+            top: 50%;
+            left: 15px;
+            transform: translateY(-50%);
+        }
+        
+        .back-nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 30px;
+            height: 30px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .back-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px;
+        }
+
+        .action-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            border-color: #667eea;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+        }
+
+        .action-card.emergency {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            grid-column: span 2;
+        }
+
+        .action-card.emergency:hover {
+            border-color: #ff6b6b;
+        }
+
+        .action-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .action-card.emergency .action-icon {
+            color: white;
+        }
+
+        .action-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .action-description {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .action-card.emergency .action-description {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .care-team {
+            margin: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .team-member {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .team-member:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .member-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .member-info {
+            flex: 1;
+        }
+
+        .member-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 3px;
+        }
+
+        .member-role {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 3px;
+        }
+
+        .member-status {
+            font-size: 0.8rem;
+            color: #4caf50;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .member-status.offline {
+            color: #999;
+        }
+
+        .member-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .contact-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .contact-btn:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+
+        .contact-btn.video {
+            background: #4caf50;
+        }
+
+        .contact-btn.video:hover {
+            background: #45a049;
+        }
+
+        .messages-section {
+            margin: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .message {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .message.unread {
+            border-left: 4px solid #667eea;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .message-sender {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .message-time {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .message-content {
+            color: #555;
+            line-height: 1.4;
+        }
+
+        .compose-section {
+            margin: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .compose-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .recipient-select {
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .recipient-select:focus {
+            border-color: #667eea;
+        }
+
+        .message-input {
+            min-height: 100px;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            resize: vertical;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .message-input:focus {
+            border-color: #667eea;
+        }
+
+        .send-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .send-btn:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+
+        .send-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .appointments-preview {
+            margin: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .appointment-item {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .appointment-info {
+            flex: 1;
+        }
+
+        .appointment-date {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 3px;
+        }
+
+        .appointment-type {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .join-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .join-btn:hover {
+            background: #45a049;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="back-nav">
+                <button class="back-nav-btn" onclick="goBack()" title="Back to Dashboard">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+            </div>
+            <h1><i class="fas fa-comments"></i> Communication</h1>
+            <p class="subtitle">Connect with your care team</p>
+        </div>
+
+        <div class="quick-actions">
+            <div class="action-card" onclick="startVideoCall()">
+                <div class="action-icon"><i class="fas fa-video"></i></div>
+                <div class="action-title">Video Call</div>
+                <div class="action-description">Start a video consultation</div>
+            </div>
+
+            <div class="action-card" onclick="startPhoneCall()">
+                <div class="action-icon"><i class="fas fa-phone"></i></div>
+                <div class="action-title">Phone Call</div>
+                <div class="action-description">Call your care team</div>
+            </div>
+
+            <div class="action-card emergency" onclick="emergencyContact()">
+                <div class="action-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="action-title">Emergency</div>
+                <div class="action-description">Contact emergency services immediately</div>
+            </div>
+        </div>
+
+        <div class="care-team">
+            <div class="section-title">
+                <i class="fas fa-user-md"></i>
+                Your Care Team
+            </div>
+            <div class="team-member">
+                <div class="member-avatar">DS</div>
+                <div class="member-info">
+                    <div class="member-name">Dr. Sarah Johnson</div>
+                    <div class="member-role">Primary Care Physician</div>
+                    <div class="member-status">
+                        <i class="fas fa-circle"></i>
+                        Online
+                    </div>
+                </div>
+                <div class="member-actions">
+                    <button class="contact-btn" onclick="messageProvider('Dr. Sarah Johnson')">
+                        <i class="fas fa-envelope"></i>
+                    </button>
+                    <button class="contact-btn video" onclick="videoCallProvider('Dr. Sarah Johnson')">
+                        <i class="fas fa-video"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="team-member">
+                <div class="member-avatar">NM</div>
+                <div class="member-info">
+                    <div class="member-name">Nurse Maria Lopez</div>
+                    <div class="member-role">Registered Nurse</div>
+                    <div class="member-status">
+                        <i class="fas fa-circle"></i>
+                        Online
+                    </div>
+                </div>
+                <div class="member-actions">
+                    <button class="contact-btn" onclick="messageProvider('Nurse Maria Lopez')">
+                        <i class="fas fa-envelope"></i>
+                    </button>
+                    <button class="contact-btn video" onclick="videoCallProvider('Nurse Maria Lopez')">
+                        <i class="fas fa-video"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="team-member">
+                <div class="member-avatar">PS</div>
+                <div class="member-info">
+                    <div class="member-name">Pharmacist Mike Chen</div>
+                    <div class="member-role">Clinical Pharmacist</div>
+                    <div class="member-status offline">
+                        <i class="fas fa-circle"></i>
+                        Offline
+                    </div>
+                </div>
+                <div class="member-actions">
+                    <button class="contact-btn" onclick="messageProvider('Pharmacist Mike Chen')">
+                        <i class="fas fa-envelope"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="appointments-preview">
+            <div class="section-title">
+                <i class="fas fa-calendar-alt"></i>
+                Upcoming Appointments
+            </div>
+            <div class="appointment-item">
+                <div class="appointment-info">
+                    <div class="appointment-date">Today, 3:00 PM</div>
+                    <div class="appointment-type">Follow-up with Dr. Johnson</div>
+                </div>
+                <button class="join-btn" onclick="joinAppointment()">
+                    <i class="fas fa-play"></i> Join
+                </button>
+            </div>
+            <div class="appointment-item">
+                <div class="appointment-info">
+                    <div class="appointment-date">Tomorrow, 10:00 AM</div>
+                    <div class="appointment-type">Medication Review</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="messages-section">
+            <div class="section-title">
+                <i class="fas fa-inbox"></i>
+                Recent Messages
+            </div>
+            <div id="messagesList">
+                <div class="message unread">
+                    <div class="message-header">
+                        <div class="message-sender">Dr. Sarah Johnson</div>
+                        <div class="message-time">2 hours ago</div>
+                    </div>
+                    <div class="message-content">
+                        Your latest test results look good. Please continue taking your medications as prescribed. Let me know if you have any questions.
+                    </div>
+                </div>
+                <div class="message">
+                    <div class="message-header">
+                        <div class="message-sender">Nurse Maria Lopez</div>
+                        <div class="message-time">1 day ago</div>
+                    </div>
+                    <div class="message-content">
+                        Reminder: Your appointment is tomorrow at 3:00 PM. Please arrive 15 minutes early.
+                    </div>
+                </div>
+                <div class="message">
+                    <div class="message-header">
+                        <div class="message-sender">Pharmacist Mike Chen</div>
+                        <div class="message-time">2 days ago</div>
+                    </div>
+                    <div class="message-content">
+                        Your prescription refill is ready for pickup. You can collect it anytime during business hours.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="compose-section">
+            <div class="section-title">
+                <i class="fas fa-pen"></i>
+                Send Message
+            </div>
+            <form class="compose-form" onsubmit="sendMessage(event)">
+                <select class="recipient-select" id="recipientSelect" required>
+                    <option value="">Select recipient...</option>
+                    <option value="Dr. Sarah Johnson">Dr. Sarah Johnson</option>
+                    <option value="Nurse Maria Lopez">Nurse Maria Lopez</option>
+                    <option value="Pharmacist Mike Chen">Pharmacist Mike Chen</option>
+                </select>
+                <textarea 
+                    class="message-input" 
+                    id="messageInput" 
+                    placeholder="Type your message here..."
+                    required
+                ></textarea>
+                <button type="submit" class="send-btn" id="sendBtn">
+                    <i class="fas fa-paper-plane"></i>
+                    Send Message
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let patientId = getPatientIdFromUrl() || '1';
+
+        function getPatientIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('patient') || '1';
+        }
+
+        function goBack() {
+            if (patientId && patientId !== '1') {
+                window.location.href = `/patient/${patientId}`;
+            } else {
+                window.location.href = 'patient-dashboard.html';
+            }
+        }
+
+        function startVideoCall() {
+            if (confirm('Start a video call with your care team?')) {
+                showNotification('Starting video call...', 'info');
+                setTimeout(() => {
+                    alert('Video call interface would open here.\n\nFeatures:\n- HD video calling\n- Screen sharing\n- Chat during call\n- Call recording (if permitted)');
+                }, 1000);
+            }
+        }
+
+        function startPhoneCall() {
+            if (confirm('Call your care team?')) {
+                showNotification('Connecting call...', 'info');
+                setTimeout(() => {
+                    alert('Phone call would be initiated here.\n\nIn a real app, this would:\n- Connect to the care team\n- Show call interface\n- Allow call recording\n- Provide emergency options');
+                }, 1000);
+            }
+        }
+
+        function emergencyContact() {
+            if (confirm('This is for medical emergencies only.\n\nAre you experiencing a medical emergency?')) {
+                showNotification('Contacting emergency services...', 'danger');
+                setTimeout(() => {
+                    alert('Emergency services contacted!\n\nIn a real app, this would:\n- Call 911 immediately\n- Send location data\n- Notify emergency contacts\n- Alert your care team');
+                }, 1000);
+            }
+        }
+
+        function messageProvider(providerName) {
+            const recipientSelect = document.getElementById('recipientSelect');
+            const messageInput = document.getElementById('messageInput');
+            
+            recipientSelect.value = providerName;
+            messageInput.focus();
+            
+            // Scroll to compose section
+            document.querySelector('.compose-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function videoCallProvider(providerName) {
+            if (confirm(`Start a video call with ${providerName}?`)) {
+                showNotification(`Calling ${providerName}...`, 'info');
+                setTimeout(() => {
+                    alert(`Video call with ${providerName} would start here.\n\nFeatures:\n- Direct provider connection\n- Secure encrypted video\n- Medical record access\n- Appointment scheduling`);
+                }, 1000);
+            }
+        }
+
+        function joinAppointment() {
+            showNotification('Joining appointment...', 'info');
+            setTimeout(() => {
+                alert('Joining your appointment!\n\nIn a real app, this would:\n- Open video call interface\n- Load your medical records\n- Enable screen sharing\n- Start appointment timer');
+            }, 1000);
+        }
+
+        function sendMessage(event) {
+            event.preventDefault();
+            
+            const recipient = document.getElementById('recipientSelect').value;
+            const message = document.getElementById('messageInput').value;
+            
+            if (!recipient || !message.trim()) {
+                showNotification('Please select a recipient and enter a message.', 'warning');
+                return;
+            }
+            
+            // Simulate sending
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            
+            setTimeout(() => {
+                // Add message to the list
+                addMessageToList(recipient, message, 'Just now');
+                
+                // Reset form
+                document.getElementById('recipientSelect').value = '';
+                document.getElementById('messageInput').value = '';
+                
+                // Reset button
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Message';
+                
+                showNotification('Message sent successfully!', 'success');
+            }, 1500);
+        }
+
+        function addMessageToList(recipient, message, time) {
+            const messagesList = document.getElementById('messagesList');
+            const messageElement = document.createElement('div');
+            messageElement.className = 'message';
+            messageElement.innerHTML = `
+                <div class="message-header">
+                    <div class="message-sender">You → ${recipient}</div>
+                    <div class="message-time">${time}</div>
+                </div>
+                <div class="message-content">${message}</div>
+            `;
+            
+            messagesList.insertBefore(messageElement, messagesList.firstChild);
+        }
+
+        function showNotification(message, type = 'info') {
+            const colors = {
+                info: '#2196f3',
+                success: '#4caf50',
+                warning: '#ff9800',
+                danger: '#f44336'
+            };
+            
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${colors[type]};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                font-size: 0.9rem;
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+                max-width: 300px;
+            `;
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

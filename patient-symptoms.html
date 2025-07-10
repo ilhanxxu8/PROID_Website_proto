@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symptom Tracking</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: #fff;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .back-nav {
+            position: absolute;
+            top: 50%;
+            left: 15px;
+            transform: translateY(-50%);
+        }
+        
+        .back-nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 30px;
+            height: 30px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .back-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .current-status {
+            margin: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .mood-selector {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+
+        .mood-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            background: #f0f0f0;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mood-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .mood-btn.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .mood-btn.excellent { background: #4caf50; }
+        .mood-btn.good { background: #8bc34a; }
+        .mood-btn.okay { background: #ffeb3b; color: #333; }
+        .mood-btn.poor { background: #ff9800; }
+        .mood-btn.terrible { background: #f44336; }
+
+        .section {
+            margin: 20px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .symptom-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .symptom-btn {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .symptom-btn:hover {
+            border-color: #667eea;
+            background: #f7f9ff;
+            transform: translateY(-2px);
+        }
+
+        .symptom-btn.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .symptom-btn i {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .severity-slider {
+            margin: 20px 0;
+        }
+
+        .slider-container {
+            position: relative;
+            margin: 10px 0;
+        }
+
+        .severity-input {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .severity-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        .severity-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .notes-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .notes-textarea {
+            width: 100%;
+            min-height: 80px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: inherit;
+            resize: vertical;
+            outline: none;
+        }
+
+        .notes-textarea:focus {
+            border-color: #667eea;
+        }
+
+        .log-entry {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .log-entry.high-severity {
+            border-left-color: #f44336;
+        }
+
+        .log-entry.medium-severity {
+            border-left-color: #ff9800;
+        }
+
+        .log-entry.low-severity {
+            border-left-color: #4caf50;
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .log-date {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .log-mood {
+            font-size: 1.2rem;
+        }
+
+        .log-symptoms {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .symptom-tag {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        .log-notes {
+            font-size: 0.9rem;
+            color: #555;
+            font-style: italic;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 15px 30px;
+            font-size: 1rem;
+            font-weight: 500;
+            margin: 20px;
+            width: calc(100% - 40px);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="back-nav">
+                <button class="back-nav-btn" onclick="goBack()" title="Back to Dashboard">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+            </div>
+            <h1><i class="fas fa-clipboard-list"></i> Symptom Tracking</h1>
+            <p class="subtitle">Log how you're feeling today</p>
+        </div>
+
+        <div class="current-status">
+            <h3>How are you feeling overall?</h3>
+            <div class="mood-selector">
+                <div class="mood-btn excellent" data-mood="5" title="Excellent">😊</div>
+                <div class="mood-btn good" data-mood="4" title="Good">🙂</div>
+                <div class="mood-btn okay" data-mood="3" title="Okay">😐</div>
+                <div class="mood-btn poor" data-mood="2" title="Poor">🙁</div>
+                <div class="mood-btn terrible" data-mood="1" title="Terrible">😢</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-thermometer-half"></i>
+                Current Symptoms
+            </div>
+            <div class="symptom-grid" id="symptomGrid">
+                <div class="symptom-btn" data-symptom="pain">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Pain
+                </div>
+                <div class="symptom-btn" data-symptom="fatigue">
+                    <i class="fas fa-tired"></i>
+                    Fatigue
+                </div>
+                <div class="symptom-btn" data-symptom="nausea">
+                    <i class="fas fa-dizzy"></i>
+                    Nausea
+                </div>
+                <div class="symptom-btn" data-symptom="headache">
+                    <i class="fas fa-head-side-brain"></i>
+                    Headache
+                </div>
+                <div class="symptom-btn" data-symptom="shortness">
+                    <i class="fas fa-lungs"></i>
+                    Breathless
+                </div>
+                <div class="symptom-btn" data-symptom="dizziness">
+                    <i class="fas fa-circle-notch"></i>
+                    Dizziness
+                </div>
+                <div class="symptom-btn" data-symptom="anxiety">
+                    <i class="fas fa-heart"></i>
+                    Anxiety
+                </div>
+                <div class="symptom-btn" data-symptom="sleep">
+                    <i class="fas fa-bed"></i>
+                    Sleep Issues
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="severitySection" style="display: none;">
+            <div class="section-title">
+                <i class="fas fa-chart-line"></i>
+                Symptom Severity
+            </div>
+            <div class="severity-slider">
+                <label for="severityInput">Overall severity level:</label>
+                <div class="slider-container">
+                    <input type="range" id="severityInput" class="severity-input" min="1" max="10" value="5">
+                    <div class="severity-labels">
+                        <span>Mild</span>
+                        <span>Moderate</span>
+                        <span>Severe</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-sticky-note"></i>
+                Additional Notes
+            </div>
+            <div class="notes-section">
+                <textarea 
+                    id="notesTextarea" 
+                    class="notes-textarea" 
+                    placeholder="Describe your symptoms, triggers, or anything else relevant..."
+                ></textarea>
+            </div>
+        </div>
+
+        <button class="submit-btn" id="submitBtn" onclick="submitSymptomLog()">
+            <i class="fas fa-save"></i> Log Symptoms
+        </button>
+
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-history"></i>
+                Recent Entries
+            </div>
+            <div id="symptomHistory">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let patientId = getPatientIdFromUrl() || '1';
+        let selectedMood = null;
+        let selectedSymptoms = [];
+        let symptomHistory = [
+            {
+                date: '2025-07-09 14:30',
+                mood: 3,
+                symptoms: ['headache', 'fatigue'],
+                severity: 6,
+                notes: 'Mild headache after lunch, feeling tired'
+            },
+            {
+                date: '2025-07-08 09:15',
+                mood: 4,
+                symptoms: ['pain'],
+                severity: 4,
+                notes: 'Lower back pain from gardening yesterday'
+            }
+        ];
+
+        function getPatientIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('patient') || '1';
+        }
+
+        function goBack() {
+            if (patientId && patientId !== '1') {
+                window.location.href = `/patient/${patientId}`;
+            } else {
+                window.location.href = 'patient-dashboard.html';
+            }
+        }
+
+        function initializeEventListeners() {
+            // Mood selector
+            document.querySelectorAll('.mood-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    selectedMood = parseInt(btn.dataset.mood);
+                    updateSubmitButton();
+                });
+            });
+
+            // Symptom buttons
+            document.querySelectorAll('.symptom-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const symptom = btn.dataset.symptom;
+                    btn.classList.toggle('active');
+                    
+                    if (selectedSymptoms.includes(symptom)) {
+                        selectedSymptoms = selectedSymptoms.filter(s => s !== symptom);
+                    } else {
+                        selectedSymptoms.push(symptom);
+                    }
+                    
+                    updateSeveritySection();
+                    updateSubmitButton();
+                });
+            });
+
+            // Severity slider
+            document.getElementById('severityInput').addEventListener('input', updateSubmitButton);
+            
+            // Notes textarea
+            document.getElementById('notesTextarea').addEventListener('input', updateSubmitButton);
+        }
+
+        function updateSeveritySection() {
+            const severitySection = document.getElementById('severitySection');
+            if (selectedSymptoms.length > 0) {
+                severitySection.style.display = 'block';
+            } else {
+                severitySection.style.display = 'none';
+            }
+        }
+
+        function updateSubmitButton() {
+            const submitBtn = document.getElementById('submitBtn');
+            const hasRequiredData = selectedMood !== null || selectedSymptoms.length > 0;
+            
+            submitBtn.disabled = !hasRequiredData;
+            
+            if (hasRequiredData) {
+                submitBtn.innerHTML = '<i class="fas fa-save"></i> Log Symptoms';
+            } else {
+                submitBtn.innerHTML = '<i class="fas fa-save"></i> Select mood or symptoms to log';
+            }
+        }
+
+        function submitSymptomLog() {
+            if (selectedMood === null && selectedSymptoms.length === 0) {
+                alert('Please select your mood or at least one symptom.');
+                return;
+            }
+
+            const now = new Date();
+            const severity = document.getElementById('severityInput').value;
+            const notes = document.getElementById('notesTextarea').value;
+
+            const logEntry = {
+                date: now.toISOString().slice(0, 16).replace('T', ' '),
+                mood: selectedMood,
+                symptoms: [...selectedSymptoms],
+                severity: parseInt(severity),
+                notes: notes.trim()
+            };
+
+            // Add to history
+            symptomHistory.unshift(logEntry);
+            
+            // Keep only last 10 entries
+            if (symptomHistory.length > 10) {
+                symptomHistory = symptomHistory.slice(0, 10);
+            }
+
+            // Reset form
+            resetForm();
+            
+            // Update display
+            displaySymptomHistory();
+            
+            // Show success message
+            showNotification('✅ Symptoms logged successfully!');
+            
+            // Vibrate if supported
+            if (navigator.vibrate) {
+                navigator.vibrate([100, 50, 100]);
+            }
+        }
+
+        function resetForm() {
+            // Reset mood
+            selectedMood = null;
+            document.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // Reset symptoms
+            selectedSymptoms = [];
+            document.querySelectorAll('.symptom-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // Reset severity
+            document.getElementById('severityInput').value = 5;
+            
+            // Reset notes
+            document.getElementById('notesTextarea').value = '';
+            
+            // Hide severity section
+            updateSeveritySection();
+            updateSubmitButton();
+        }
+
+        function displaySymptomHistory() {
+            const container = document.getElementById('symptomHistory');
+            
+            if (symptomHistory.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-clipboard"></i>
+                        <p>No symptom logs yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = symptomHistory.map(entry => {
+                const moodEmojis = ['😢', '🙁', '😐', '🙂', '😊'];
+                const severityClass = entry.severity >= 7 ? 'high-severity' : 
+                                   entry.severity >= 4 ? 'medium-severity' : 'low-severity';
+                
+                return `
+                    <div class="log-entry ${severityClass}">
+                        <div class="log-header">
+                            <div class="log-date">${formatDate(entry.date)}</div>
+                            <div class="log-mood">${entry.mood ? moodEmojis[entry.mood - 1] : '—'}</div>
+                        </div>
+                        ${entry.symptoms.length > 0 ? `
+                            <div class="log-symptoms">
+                                ${entry.symptoms.map(symptom => 
+                                    `<span class="symptom-tag">${capitalizeFirst(symptom)}</span>`
+                                ).join('')}
+                            </div>
+                        ` : ''}
+                        ${entry.severity && entry.symptoms.length > 0 ? `
+                            <div style="font-size: 0.9rem; color: #666; margin-bottom: 8px;">
+                                <i class="fas fa-chart-line"></i> Severity: ${entry.severity}/10
+                            </div>
+                        ` : ''}
+                        ${entry.notes ? `
+                            <div class="log-notes">"${entry.notes}"</div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 0) {
+                return 'Today ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            } else if (diffDays === 1) {
+                return 'Yesterday ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            } else {
+                return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            }
+        }
+
+        function capitalizeFirst(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function showNotification(message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #4caf50;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                font-size: 0.9rem;
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            `;
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 2000);
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeEventListeners();
+            displaySymptomHistory();
+            updateSubmitButton();
+        });
+    </script>
+</body>
+</html>

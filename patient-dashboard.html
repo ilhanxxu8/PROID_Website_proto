@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: #fff;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .header .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .patient-info {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            text-align: left;
+        }
+
+        .navigation-grid {
+            padding: 30px 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .nav-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .nav-card:hover {
+            transform: translateY(-5px);
+            border-color: #667eea;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+        }
+
+        .nav-card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .nav-card .title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .nav-card .description {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .quick-status {
+            background: #f8f9fa;
+            margin: 0 20px 20px 20px;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-label {
+            font-weight: 500;
+        }
+
+        .status-value {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .status-value.warning {
+            color: #ff9800;
+        }
+
+        .status-value.danger {
+            color: #f44336;
+        }
+
+        .back-nav {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+        }
+        
+        .back-nav-btn {
+            background: rgba(0, 0, 0, 0.1);
+            color: rgba(255, 255, 255, 0.6);
+            border: none;
+            border-radius: 4px;
+            width: 30px;
+            height: 30px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.4;
+        }
+        
+        .back-nav-btn:hover {
+            opacity: 0.8;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .emergency-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 15px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 20px;
+            width: calc(100% - 40px);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .emergency-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <!-- Back Navigation Button -->
+    <div class="back-nav">
+        <button class="back-nav-btn" onclick="window.location.href = '/'" title="Back to Healthcare Dashboard">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>Patient Dashboard</h1>
+            <p class="subtitle">Your health, simplified</p>
+            <div class="patient-info" id="patientInfo">
+                <h2>Welcome back!</h2>
+                <p>Loading your health information...</p>
+            </div>
+        </div>
+
+        <div class="quick-status" id="quickStatus">
+            <div class="status-item">
+                <span class="status-label">Health Status</span>
+                <span class="status-value" id="healthStatus">Loading...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Heart Rate</span>
+                <span class="status-value" id="heartRate">-- bpm</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Next Medication</span>
+                <span class="status-value" id="nextMed">--</span>
+            </div>
+        </div>
+
+        <div class="navigation-grid">
+            <div class="nav-card" onclick="navigateTo('patient-vitals.html')">
+                <div class="icon"><i class="fas fa-heartbeat"></i></div>
+                <div class="title">Vitals & Health</div>
+                <div class="description">View your current health metrics and trends</div>
+            </div>
+
+            <div class="nav-card" onclick="navigateTo('patient-medications.html')">
+                <div class="icon"><i class="fas fa-pills"></i></div>
+                <div class="title">Medications</div>
+                <div class="description">Track medications and set reminders</div>
+            </div>
+
+            <div class="nav-card" onclick="navigateTo('patient-symptoms.html')">
+                <div class="icon"><i class="fas fa-clipboard-list"></i></div>
+                <div class="title">Symptoms</div>
+                <div class="description">Log symptoms and track patterns</div>
+            </div>
+
+            <div class="nav-card" onclick="navigateTo('patient-communication.html')">
+                <div class="icon"><i class="fas fa-comments"></i></div>
+                <div class="title">Communication</div>
+                <div class="description">Messages and video calls with care team</div>
+            </div>
+
+            <div class="nav-card" onclick="navigateTo('patient-reports.html')">
+                <div class="icon"><i class="fas fa-chart-line"></i></div>
+                <div class="title">Reports</div>
+                <div class="description">View detailed health reports and history</div>
+            </div>
+
+            <div class="nav-card" onclick="navigateTo('patient-appointments.html')">
+                <div class="icon"><i class="fas fa-calendar-alt"></i></div>
+                <div class="title">Appointments</div>
+                <div class="description">Schedule and manage appointments</div>
+            </div>
+        </div>
+
+        <button class="emergency-btn" onclick="emergencyContact()">
+            <i class="fas fa-exclamation-triangle"></i> Emergency Contact
+        </button>
+    </div>
+
+    <script>
+        let patientId = getPatientIdFromUrl() || '1';
+
+        function getPatientIdFromUrl() {
+            const path = window.location.pathname;
+            const match = path.match(/\/patient\/(.+)/);
+            return match ? match[1] : null;
+        }
+
+        async function loadPatientOverview() {
+            try {
+                let response, data;
+                
+                if (patientId && patientId !== '1') {
+                    response = await fetch(`/api/patient/${patientId}`);
+                    if (response.ok) {
+                        data = await response.json();
+                        if (!data.error) {
+                            updateOverview(data);
+                            return;
+                        }
+                    }
+                }
+                
+                // Fallback
+                response = await fetch('/api/patient-data');
+                const allData = await response.json();
+                const patientRows = allData.filter(row => row.id === patientId);
+                if (patientRows.length > 0) {
+                    patientRows.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    updateOverview(patientRows[0]);
+                }
+            } catch (error) {
+                console.error('Failed to load data:', error);
+            }
+        }
+
+        function updateOverview(data) {
+            document.getElementById('patientInfo').innerHTML = `
+                <h2>Hello, ${data.name}</h2>
+                <p>Age ${data.age} • ${data.diagnosis}</p>
+            `;
+
+            const healthStatus = document.getElementById('healthStatus');
+            healthStatus.textContent = data.risk_category || 'Good';
+            healthStatus.className = 'status-value';
+            if (data.risk_category === 'High') {
+                healthStatus.classList.add('danger');
+            } else if (data.risk_category === 'Moderate') {
+                healthStatus.classList.add('warning');
+            }
+
+            document.getElementById('heartRate').textContent = `${data.heart_rate} bpm`;
+            document.getElementById('nextMed').textContent = 'Lisinopril 8:00 PM';
+        }
+
+        function emergencyContact() {
+            if (confirm('Are you experiencing a medical emergency?\n\nClick OK to contact emergency services immediately.')) {
+                alert('Contacting emergency services...\n\nIn a real app, this would call 911 or your emergency contact.');
+            }
+        }
+
+        function navigateTo(page) {
+            if (patientId && patientId !== '1') {
+                window.location.href = `/${page}?patient=${patientId}`;
+            } else {
+                window.location.href = `/${page}`;
+            }
+        }
+
+        // Update navigation links to include patient ID
+        function updateNavigationLinks() {
+            // No longer needed since we're using JavaScript navigation
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPatientOverview();
+        });
+    </script>
+</body>
+</html>

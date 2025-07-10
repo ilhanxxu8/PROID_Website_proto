@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vitals & Health</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: #fff;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .back-nav {
+            position: absolute;
+            top: 50%;
+            left: 15px;
+            transform: translateY(-50%);
+        }
+        
+        .back-nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 30px;
+            height: 30px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .back-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px;
+        }
+
+        .metric-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .metric-card.warning {
+            border-color: #ff9800;
+            background: #fff3e0;
+        }
+
+        .metric-card.danger {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+
+        .metric-icon {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .metric-card.warning .metric-icon {
+            color: #ff9800;
+        }
+
+        .metric-card.danger .metric-icon {
+            color: #f44336;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .chart-container {
+            height: 80px;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            margin: 10px 0;
+        }
+
+        .metric-chart {
+            height: 80px !important;
+            width: 100% !important;
+            max-height: 80px;
+        }
+
+        .trend-indicator {
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.8rem;
+            margin-top: 8px;
+        }
+
+        .trend-up {
+            color: #f44336;
+        }
+
+        .trend-down {
+            color: #4caf50;
+        }
+
+        .trend-stable {
+            color: #666;
+        }
+
+        .large-chart {
+            height: 250px !important;
+            max-height: 250px !important;
+            width: 100% !important;
+        }
+
+        .detailed-chart {
+            margin: 20px;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            height: 320px;
+            max-height: 320px;
+            overflow: hidden;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 15px 30px;
+            font-size: 1rem;
+            font-weight: 500;
+            margin: 20px;
+            width: calc(100% - 40px);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="back-nav">
+                <button class="back-nav-btn" onclick="goBack()" title="Back to Dashboard">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+            </div>
+            <h1><i class="fas fa-heartbeat"></i> Vitals & Health</h1>
+            <p class="subtitle">Your current health metrics</p>
+        </div>
+
+        <div class="metrics-grid" id="metricsGrid">
+            <div class="metric-card">
+                <div class="metric-icon"><i class="fas fa-heartbeat"></i></div>
+                <div class="metric-value" id="heartRate">--</div>
+                <div class="metric-label">Heart Rate</div>
+                <div class="chart-container">
+                    <canvas class="metric-chart" id="heartRateChart"></canvas>
+                </div>
+                <div class="trend-indicator trend-stable" id="hrTrend">
+                    <i class="fas fa-minus"></i> Stable
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon"><i class="fas fa-lungs"></i></div>
+                <div class="metric-value" id="oxygen">--</div>
+                <div class="metric-label">Blood Oxygen</div>
+                <div class="chart-container">
+                    <canvas class="metric-chart" id="oxygenChart"></canvas>
+                </div>
+                <div class="trend-indicator trend-stable" id="oxygenTrend">
+                    <i class="fas fa-minus"></i> Normal
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon"><i class="fas fa-walking"></i></div>
+                <div class="metric-value" id="steps">--</div>
+                <div class="metric-label">Steps Today</div>
+                <div class="chart-container">
+                    <canvas class="metric-chart" id="stepsChart"></canvas>
+                </div>
+                <div class="trend-indicator trend-stable" id="stepsTrend">
+                    <i class="fas fa-minus"></i> On track
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon"><i class="fas fa-bed"></i></div>
+                <div class="metric-value" id="sleep">--</div>
+                <div class="metric-label">Sleep Hours</div>
+                <div class="chart-container">
+                    <canvas class="metric-chart" id="sleepChart"></canvas>
+                </div>
+                <div class="trend-indicator trend-stable" id="sleepTrend">
+                    <i class="fas fa-minus"></i> Good
+                </div>
+            </div>
+        </div>
+
+        <div class="detailed-chart">
+            <div class="chart-title">24-Hour Heart Rate Trend</div>
+            <canvas class="large-chart" id="detailedChart"></canvas>
+        </div>
+
+        <button class="refresh-btn" onclick="refreshData()">
+            <i class="fas fa-sync-alt"></i> Refresh Data
+        </button>
+    </div>
+
+    <script>
+        let patientData = null;
+        let patientId = getPatientIdFromUrl() || '1';
+        let charts = {};
+
+        function getPatientIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('patient') || '1';
+        }
+
+        function goBack() {
+            if (patientId && patientId !== '1') {
+                window.location.href = `/patient/${patientId}`;
+            } else {
+                window.location.href = 'patient-dashboard.html';
+            }
+        }
+
+        async function loadPatientData() {
+            try {
+                let response, data;
+                
+                if (patientId && patientId !== '1') {
+                    response = await fetch(`/api/patient/${patientId}`);
+                    if (response.ok) {
+                        data = await response.json();
+                        if (!data.error) {
+                            patientData = { latest: data, previous: data };
+                            updateUI();
+                            return;
+                        }
+                    }
+                }
+                
+                response = await fetch('/api/patient-data');
+                const allData = await response.json();
+                const patientRows = allData.filter(row => row.id === patientId);
+                if (patientRows.length > 0) {
+                    patientRows.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    patientData = { latest: patientRows[0], previous: patientRows[1] || patientRows[0] };
+                    updateUI();
+                }
+            } catch (error) {
+                console.error('Failed to load data:', error);
+            }
+        }
+
+        function updateUI() {
+            if (!patientData) return;
+            
+            const { latest, previous } = patientData;
+            
+            // Update metrics
+            updateMetric('heartRate', `${latest.heart_rate} bpm`, 'hrTrend', 
+                latest.heart_rate, previous.heart_rate, 60, 100);
+            
+            updateMetric('oxygen', `${latest.blood_oxygen}%`, 'oxygenTrend', 
+                latest.blood_oxygen, previous.blood_oxygen, 95, null);
+            
+            updateMetric('steps', latest.steps, 'stepsTrend', 
+                latest.steps, previous.steps, 7000, null, 'steps');
+            
+            const sleepHours = latest.sleep_hours > 0 ? `${latest.sleep_hours}h` : 'Awake';
+            updateMetric('sleep', sleepHours, 'sleepTrend', 
+                latest.sleep_hours, previous.sleep_hours, 7, null, 'sleep');
+
+            createMiniCharts();
+            createDetailedChart();
+        }
+
+        function updateMetric(valueId, displayValue, trendId, current, previous, warningThreshold, dangerThreshold, type = '') {
+            document.getElementById(valueId).textContent = displayValue;
+            
+            const metricCard = document.getElementById(valueId).closest('.metric-card');
+            const trendElement = document.getElementById(trendId);
+            
+            // Clear existing classes
+            metricCard.classList.remove('warning', 'danger');
+            
+            // Add warning/danger classes
+            if (dangerThreshold && (current >= dangerThreshold || current <= (dangerThreshold - 40))) {
+                metricCard.classList.add('danger');
+            } else if (warningThreshold) {
+                if (type === 'steps' && current < warningThreshold) {
+                    metricCard.classList.add('warning');
+                } else if (type === 'sleep' && current < warningThreshold && current > 0) {
+                    metricCard.classList.add('warning');
+                } else if (type === '' && (current < warningThreshold || current >= 100)) {
+                    metricCard.classList.add('warning');
+                }
+            }
+            
+            // Update trend
+            const diff = current - previous;
+            if (Math.abs(diff) < 0.1) {
+                trendElement.innerHTML = '<i class="fas fa-minus"></i> Stable';
+                trendElement.className = 'trend-indicator trend-stable';
+            } else if (diff > 0) {
+                trendElement.innerHTML = `<i class="fas fa-arrow-up"></i> +${diff.toFixed(1)}`;
+                trendElement.className = 'trend-indicator trend-up';
+            } else {
+                trendElement.innerHTML = `<i class="fas fa-arrow-down"></i> ${diff.toFixed(1)}`;
+                trendElement.className = 'trend-indicator trend-down';
+            }
+        }
+
+        function createMiniCharts() {
+            const history = generateSampleHistory();
+            
+            createChart('heartRateChart', history.heartRate, '#ff6384', 80);
+            createChart('oxygenChart', history.oxygen, '#36a2eb', 80);
+            createChart('stepsChart', history.steps, '#4bc0c0', 80);
+            createChart('sleepChart', history.sleep, '#ffce56', 80);
+        }
+
+        function createDetailedChart() {
+            const detailedData = generateDetailedHeartRateData();
+            createChart('detailedChart', detailedData, '#ff6384', 250, true);
+        }
+
+        function generateSampleHistory() {
+            const days = 7;
+            const history = {
+                heartRate: [],
+                steps: [],
+                sleep: [],
+                oxygen: []
+            };
+            
+            for (let i = days; i >= 0; i--) {
+                history.heartRate.push(65 + Math.random() * 20);
+                history.steps.push(7000 + Math.random() * 5000);
+                history.sleep.push(6 + Math.random() * 3);
+                history.oxygen.push(96 + Math.random() * 3);
+            }
+            
+            return history;
+        }
+
+        function generateDetailedHeartRateData() {
+            const hours = 24;
+            const data = [];
+            
+            for (let i = 0; i < hours; i++) {
+                let baseRate = 70;
+                if (i >= 22 || i <= 6) baseRate = 60; // Sleep hours
+                if (i >= 7 && i <= 9) baseRate = 80; // Morning
+                if (i >= 17 && i <= 19) baseRate = 85; // Evening
+                
+                data.push(baseRate + Math.random() * 15);
+            }
+            
+            return data;
+        }
+
+        function createChart(canvasId, data, color, height, isDetailed = false) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            
+            // Set canvas dimensions properly
+            canvas.style.height = height + 'px';
+            canvas.style.maxHeight = height + 'px';
+            canvas.style.width = '100%';
+            canvas.width = canvas.offsetWidth;
+            canvas.height = height;
+            
+            const ctx = canvas.getContext('2d');
+            
+            if (charts[canvasId]) {
+                charts[canvasId].destroy();
+            }
+            
+            const labels = isDetailed ? 
+                Array.from({length: 24}, (_, i) => `${i}:00`) :
+                ['7d', '6d', '5d', '4d', '3d', '2d', '1d', 'Now'];
+            
+            charts[canvasId] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        borderColor: color,
+                        backgroundColor: color + '20',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: isDetailed ? 2 : 0,
+                        pointHoverRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    aspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { 
+                            display: isDetailed,
+                            grid: { display: isDetailed }
+                        },
+                        y: { 
+                            display: isDetailed,
+                            grid: { display: isDetailed },
+                            min: isDetailed ? 50 : undefined,
+                            max: isDetailed ? 120 : undefined
+                        }
+                    },
+                    elements: {
+                        line: { borderWidth: 2 }
+                    },
+                    animation: {
+                        duration: 0
+                    }
+                }
+            });
+        }
+
+        function refreshData() {
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                loadPatientData();
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 1000);
+        }
+
+        // Load data when page loads
+        loadPatientData();
+    </script>
+</body>
+</html>
