@@ -15,6 +15,7 @@ def patient_data():
     def compute_risk(row):
         # Example scoring: heart rate, blood oxygen, sleep, steps
         score = 0
+        points = {'heart_rate': 0, 'blood_oxygen': 0, 'sleep_hours': 0, 'steps': 0}
         try:
             hr = float(row.get('heart_rate', 0))
             o2 = float(row.get('blood_oxygen', 100))
@@ -24,24 +25,28 @@ def patient_data():
             hr, o2, sleep, steps = 0, 100, 8, 10000
         # Heart rate risk
         if hr >= 100 or hr <= 60:
-            score += 4
+            points['heart_rate'] = 4
         elif hr >= 90 or hr <= 65:
-            score += 2
+            points['heart_rate'] = 2
+        score += points['heart_rate']
         # Blood oxygen risk
         if o2 < 92:
-            score += 4
+            points['blood_oxygen'] = 4
         elif o2 < 95:
-            score += 2
+            points['blood_oxygen'] = 2
+        score += points['blood_oxygen']
         # Sleep risk
         if sleep < 5:
-            score += 2
+            points['sleep_hours'] = 2
         elif sleep < 7:
-            score += 1
+            points['sleep_hours'] = 1
+        score += points['sleep_hours']
         # Steps risk (sedentary)
         if steps < 3000:
-            score += 2
+            points['steps'] = 2
         elif steps < 7000:
-            score += 1
+            points['steps'] = 1
+        score += points['steps']
         # Clamp score
         score = min(max(int(score), 0), 15)
         # Category
@@ -53,7 +58,7 @@ def patient_data():
             category = 'Moderate'
         else:
             category = 'High'
-        return score, category
+        return score, category, points
     with open('patient_data.csv', newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
@@ -63,9 +68,10 @@ def patient_data():
                     row['ecg_waveform'] = ast.literal_eval(row['ecg_waveform'])
                 except Exception:
                     row['ecg_waveform'] = []
-            risk_score, risk_category = compute_risk(row)
+            risk_score, risk_category, points = compute_risk(row)
             row['risk_score'] = risk_score
             row['risk_category'] = risk_category
+            row['risk_points'] = points
             data.append(row)
     return jsonify(data)
 

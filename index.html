@@ -347,7 +347,7 @@
             const normalRhythms = [/normal/i, /sinus bradycardia/i, /sinus tachycardia/i, /sinus arrhythmia/i];
             const ecgAbnormal = rows.filter(r => !normalRhythms.some(rx => rx.test(r.ecg))).length;
             const minO2 = Math.min(...bloodO2);
-            // Risk score and category (show for the latest row)
+            // Use only the latest row for risk score and category
             const latest = rows[rows.length - 1] || {};
             // Color coding for risk category
             let riskColor = '#2ecc40'; // green
@@ -360,6 +360,8 @@
             } else if (latest.risk_category === 'Mid') {
                 riskColor = '#2980ef'; // blue
             }
+            // Get risk points for each metric from latest row
+            const rp = latest.risk_points || {};
             summaryDiv.innerHTML = `
                 <div class="summary-group">
                     <div class="summary-item" style="color:${riskColor};font-weight:bold;" id="riskScoreBox">
@@ -370,17 +372,17 @@
                     </div>
                 </div>
                 <div class="summary-group">
-                    <div class="summary-item"><i class="fa fa-heartbeat"></i><strong>Avg HR:</strong> ${avg(heartRates).toFixed(1)} bpm <i class="fa fa-info-circle" title="Average heart rate across all readings."></i></div>
+                    <div class="summary-item"><i class="fa fa-heartbeat"></i><strong>Latest HR:</strong> ${latest.heart_rate ?? 'N/A'} bpm <span style="color:#e74c3c;font-weight:bold;">(${rp.heart_rate ?? 0})</span> <i class="fa fa-info-circle" title="Latest heart rate recorded. Risk points in red."></i></div>
                     <div class="summary-item"><i class="fa fa-arrow-up"></i><strong>Max HR:</strong> ${Math.max(...heartRates)} bpm <i class="fa fa-info-circle" title="Highest recorded heart rate."></i></div>
                     <div class="summary-item"><i class="fa fa-arrow-down"></i><strong>Min HR:</strong> ${Math.min(...heartRates)} bpm <i class="fa fa-info-circle" title="Lowest recorded heart rate."></i></div>
                 </div>
                 <div class="summary-group">
-                    <div class="summary-item"><i class="fa fa-shoe-prints"></i><strong>Total Steps:</strong> ${steps.reduce((a, b) => a + b, 0)} <i class="fa fa-info-circle" title="Sum of all steps recorded."></i></div>
-                    <div class="summary-item"><i class="fa fa-bed"></i><strong>Avg Sleep:</strong> ${avg(sleep).toFixed(2)} hrs <i class="fa fa-info-circle" title="Average sleep hours per day."></i></div>
+                    <div class="summary-item"><i class="fa fa-shoe-prints"></i><strong>Total Steps:</strong> ${steps.reduce((a, b) => a + b, 0)} <span style="color:#e74c3c;font-weight:bold;">(${rp.steps ?? 0})</span> <i class="fa fa-info-circle" title="Sum of all steps recorded. Risk points in red."></i></div>
+                    <div class="summary-item"><i class="fa fa-bed"></i><strong>Avg Sleep:</strong> ${avg(sleep).toFixed(2)} hrs <span style="color:#e74c3c;font-weight:bold;">(${rp.sleep_hours ?? 0})</span> <i class="fa fa-info-circle" title="Average sleep hours per day. Risk points in red."></i></div>
                 </div>
                 <div class="summary-group">
                     <div class="summary-item${ecgAbnormal > 0 ? ' critical' : ''}"><i class="fa fa-exclamation-triangle"></i><strong>Abnormal ECG:</strong> ${ecgAbnormal} <i class="fa fa-info-circle" title="Number of readings with truly abnormal ECG rhythm (not just sinus variants)."></i></div>
-                    <div class="summary-item${minO2 <= 94 ? ' critical' : ''}"><i class="fa fa-tint"></i><strong>Lowest O₂:</strong> ${minO2}% <i class="fa fa-info-circle" title="Lowest blood oxygen value recorded. Below 94% is considered low."></i></div>
+                    <div class="summary-item${minO2 <= 94 ? ' critical' : ''}"><i class="fa fa-tint"></i><strong>Lowest O₂:</strong> ${minO2}% <span style="color:#e74c3c;font-weight:bold;">(${rp.blood_oxygen ?? 0})</span> <i class="fa fa-info-circle" title="Lowest blood oxygen value recorded. Risk points in red. Below 94% is considered low."></i></div>
                 </div>
             `;
         }
